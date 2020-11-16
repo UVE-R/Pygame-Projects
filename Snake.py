@@ -1,4 +1,4 @@
-#Snake Tutorial Python
+#Snake in Python
 
 import math
 import random
