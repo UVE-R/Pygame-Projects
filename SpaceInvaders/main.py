@@ -2,12 +2,13 @@ import pygame
 from pygame.locals import *
 import random
 from pygame import mixer
+import sys
 
 clock = pygame.time.Clock()
 pygame.mixer.pre_init(44100, -16, 2, 512)
 mixer.init()
 pygame.font.init()
-
+pygame.init()
 
 
 FPS = 60
@@ -18,6 +19,7 @@ screen_height = 800
 red = (255,0,0)
 green = (0,255,0)
 white = (255, 255, 255)
+black = (0, 0, 0)
 
 rows = 5
 cols = 5
@@ -208,6 +210,44 @@ class Explosion(pygame.sprite.Sprite):
         if self.index >= len(self.images) - 1 and self.counter >= explosion_speed:
             self.kill()
 
+class Button():
+
+    def __init__(self, x, y, width, height, fg, bg, content, fontsize):
+
+        self.font = pygame.font.SysFont('Constantia', fontsize)
+
+        self.content = content
+        self.x = x  - width//2
+        self.y = y - height // 2
+        self.width = width 
+        self.height = height 
+
+        self.fg = fg
+        self.bg = bg
+
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill(self.bg)
+        self.rect = self.image.get_rect()
+
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.text = self.font.render(self.content, True, self.fg)
+        self.text_rect = self.text.get_rect(center = (self.width/2, self.height/2))
+
+        self.image.blit(self.text, self.text_rect)
+
+    def is_pressed(self, pos, pressed):
+        
+        if self.rect.collidepoint(pos):
+            if pressed[0]:
+                return True 
+
+        return False
+
+
+
+
 
 spaceship_group = pygame.sprite.Group() 
 spaceship = Spaceship(int(screen_width/2), screen_height - 100, 3)
@@ -228,6 +268,37 @@ def create_aliens():
             alien_group.add(alien)
 
 create_aliens()
+
+
+intro = True 
+
+while intro:
+    clock.tick(FPS)
+    draw_bg()
+
+    draw_text("Space Invaders", font40, white, screen_width//2 - 125 , 150)
+    play_button = Button(screen_width//2, screen_height//2, 100, 70, white, red, "Play", 50)
+    quit_button = Button(screen_width//2, screen_height//2 + 150, 100, 70, white, red, "Quit", 50)
+
+    screen.blit(play_button.image, play_button.rect)
+    screen.blit(quit_button.image, quit_button.rect)
+    
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            intro = False 
+            pygame.quit()
+            sys.exit()
+
+    
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_pressed = pygame.mouse.get_pressed()
+
+    if play_button.is_pressed(mouse_pos, mouse_pressed):
+        intro = False
+
+    pygame.display.update()
+
 
 run = True 
 while run: 
